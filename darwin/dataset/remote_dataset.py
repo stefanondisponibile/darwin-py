@@ -1,4 +1,5 @@
 import json
+import os
 import shutil
 import tempfile
 import zipfile
@@ -199,6 +200,7 @@ class RemoteDataset:
                 multi_threaded=multi_threaded,
                 progress_callback=progress_callback,
                 file_upload_callback=file_upload_callback,
+                max_workers=os.getenv("MAX_WORKERS"),
             )
         else:
             handler.prepare_upload()
