@@ -1,6 +1,18 @@
 from dataclasses import dataclass, field
+from email.policy import default
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterator, List, Optional, Set, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Union,
+)
 
 from darwin.path_utils import construct_full_path
 
@@ -103,6 +115,8 @@ class Annotation:
     #: List of ``SubAnnotations`` belonging to this ``Annotation``.
     subs: List[SubAnnotation] = field(default_factory=list)
 
+    slots: List[str] = field(default_factory=list)
+
     def get_sub(self, annotation_type: str) -> Optional[SubAnnotation]:
         """
         Returns the first SubAnnotation that matches the given type.
@@ -199,6 +213,36 @@ class VideoAnnotation:
 
 
 @dataclass
+class Slot:
+    #: Unique slot name in the item
+    name: str
+
+    #: Type of slot, e.g. image or dicom
+    type: str
+
+    #: Name of the file upload for this slot
+    filename: Optional[str] = None
+
+    #: Url to the file
+    url: Optional[str] = None
+
+    #: Thumbnail url to the file
+    thubmnail_url: Optional[str] = None
+
+    #: Width in pixel
+    width: Optional[int] = None
+
+    #: Height in pixels
+    height: Optional[int] = None
+
+    #: How many sections (eg. frames) does this slot have
+    section_count: Optional[int] = None
+
+    #: A url for each of the existing sections.
+    section_urls: Optional[List[str]] = None
+
+
+@dataclass
 class AnnotationFile:
     """
     Represents a file containing annotations. Mostly useful when trying to import or export
@@ -217,7 +261,7 @@ class AnnotationFile:
     annotation_classes: Set[AnnotationClass]
 
     #: List of ``VideoAnnotation``\s or ``Annotation``\s.
-    annotations: Union[List[VideoAnnotation], List[Annotation]]
+    annotations: Sequence[Union[Annotation, VideoAnnotation]]
 
     #: Whether the annotations in the ``annotations`` attribute are ``VideoAnnotation`` or not.
     is_video: bool = False
@@ -242,6 +286,8 @@ class AnnotationFile:
 
     #: Remote path for this ``Annotation``\'s file in V7's darwin.
     remote_path: Optional[str] = None
+
+    slots: List[Slot] = field(default_factory=list)
 
     @property
     def full_path(self) -> str:
